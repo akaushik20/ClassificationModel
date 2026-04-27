@@ -1,0 +1,84 @@
+# =============================================================================
+# config.yaml — Central configuration for the Classification Pipeline
+# All file paths, model parameters, and processing thresholds live here.
+# No values should be hardcoded anywhere in the codebase.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Reproducibility
+# ---------------------------------------------------------------------------
+random_seed: 42
+
+# ---------------------------------------------------------------------------
+# Data paths
+# ---------------------------------------------------------------------------
+paths:
+  raw_data:        "data/raw.csv"          # Output of data_generation.py
+  train_data:      "data/train.csv"        # Output of data_prep.py
+  test_data:       "data/test.csv"         # Output of data_prep.py
+  model:           "model/model.pkl"       # Trained XGBoost model
+  features:        "model/features.pkl"    # Selected feature name list
+  eda_report:      "output/eda_report.html"
+  confusion_matrix: "output/confusion_matrix.png"
+  roc_curve:       "output/roc_curve.png"
+  pr_curve:        "output/pr_curve.png"
+  feature_importance: "output/feature_importance.png"
+  metrics_summary: "output/metrics_summary.csv"
+
+# ---------------------------------------------------------------------------
+# Dataset generation
+# ---------------------------------------------------------------------------
+data_generation:
+  n_rows:          10000
+  n_numeric_continuous: 8   # float features
+  n_numeric_integer:    6   # integer features
+  n_categorical:        6   # string/categorical features
+  target_imbalance:   0.30  # fraction of positive class (minority)
+  # Missing-rate range per column: min 2%, max 95%
+  missing_rate_min:   0.02
+  missing_rate_max:   0.95
+
+# ---------------------------------------------------------------------------
+# Data preprocessing
+# ---------------------------------------------------------------------------
+preprocessing:
+  missing_drop_threshold:    0.90  # Drop columns with >90% missing values
+  near_constant_threshold:   0.99  # Drop columns where top value covers >99% of rows
+  test_size:                 0.20  # 80/20 train-test split
+  # Encoding: OrdinalEncoder used for all categoricals (low cardinality, tree model)
+  # Scaling: StandardScaler applied to numeric features
+  #   Justification: synthetic numeric data is approximately normal with no extreme
+  #   skew, so StandardScaler (zero mean, unit variance) is appropriate.
+  #   MinMaxScaler would be preferred only if bounded input ranges were required.
+
+# ---------------------------------------------------------------------------
+# Feature selection
+# ---------------------------------------------------------------------------
+feature_selection:
+  top_n_features: 15   # Number of top features to retain after importance ranking
+  # Method: XGBoost feature_importances_ (gain-based)
+  # Justification: model-native importance is fast, handles mixed types after
+  # encoding, and is consistent with the final estimator (no extra estimator needed).
+
+# ---------------------------------------------------------------------------
+# Model — XGBoost binary classifier
+# ---------------------------------------------------------------------------
+model:
+  n_estimators:     300
+  max_depth:        6
+  learning_rate:    0.05
+  subsample:        0.8
+  colsample_bytree: 0.8
+  min_child_weight: 5
+  gamma:            0.1
+  # scale_pos_weight handles class imbalance:
+  #   set to (n_negative / n_positive), computed dynamically in train.py
+  #   using this ratio rather than SMOTE keeps the pipeline lightweight
+  #   and avoids synthetic over-sampling artefacts on already-synthetic data.
+  use_scale_pos_weight: true
+
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
+evaluation:
+  classification_threshold: 0.50   # Probability threshold for positive-class prediction

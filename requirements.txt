@@ -1,0 +1,26 @@
+# =============================================================================
+# requirements.txt — Python 3.13 compatible (unpinned, pip resolves latest)
+# Install with: pip install -r requirements.txt
+# =============================================================================
+
+# Core data
+pandas
+numpy
+
+# Machine learning
+scikit-learn
+xgboost
+imbalanced-learn
+
+# EDA
+sweetviz
+
+# Visualisation
+matplotlib
+seaborn
+
+# Config parsing
+PyYAML
+
+# Model serialisation
+joblib
