@@ -15,7 +15,14 @@
 import os
 import logging
 
+import numpy as np
 import pandas as pd
+
+# numpy.VisibleDeprecationWarning was removed in NumPy 2.0.
+# Sweetviz still references it, so we restore the alias before importing sweetviz.
+if not hasattr(np, "VisibleDeprecationWarning"):
+    np.VisibleDeprecationWarning = UserWarning  # type: ignore[attr-defined]
+
 import sweetviz as sv
 import yaml
 
